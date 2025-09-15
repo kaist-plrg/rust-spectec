@@ -1,0 +1,52 @@
+;; Identifier (var name, func name, trait name)
+syntax identifier = ID text
+
+;; Type identifier (Tvar name)
+syntax typeIdentifier = TID text
+
+syntax typeIdentifierList = typeIdentifier*
+
+;; Type (Placeholder, definition at 2.1)
+syntax type
+
+;; Define type scheme (forall T. phi => type)
+syntax traitBound = identifier `< typeIdentifierList >
+
+syntax traitConstraint = type `: traitBound
+
+syntax traitConstraintList = traitConstraint*
+
+syntax typeScheme = FORALL typeIdentifierList `. traitConstraintList `=> type
+
+;; term
+syntax structMember
+
+syntax term =
+  | UNIT
+  | identifier
+  | LET identifier `= term IN term
+  | term `: `= term
+  | term `; term
+  | `& term
+  | `* term
+  | term `( term* )
+  | term AS type
+  | STRUCT identifier `{ structMember* }
+  | term `. identifier
+
+syntax structMember = identifier `: term
+
+;; func
+syntax termType = term `: type
+
+syntax func =
+  | FUN identifier `< typeIdentifierList > `( termType* ) `-> type WHERE traitConstraintList `{ term }
+
+syntax item =
+  | func
+  | STRUCT identifier `< typeIdentifierList > `{ termType* }
+  | TRAIT identifier `< typeIdentifierList > WHERE traitConstraintList `{ identifier `: typeScheme }
+  | IMPL `< typeIdentifierList > identifier `< type* > WHERE traitConstraintList `{ func }
+
+;; NanoRust program
+syntax pgm = item*
