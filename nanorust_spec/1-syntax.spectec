@@ -23,14 +23,14 @@ syntax terms = term*
 syntax structElem = id `: term
 syntax structElems = structElem*
 
-syntax vartype = id `: type
-syntax vartypes = vartype*
+syntax varType = id `: type
+syntax varTypes = vartype*
 
 syntax func =
-  | FN id tids vartypes `-> 
+  | FN id tids varTypes `-> type `{ term }
 
 syntax item =
-  | FUNC
+  | func
   | STRUCT
   | TRAIT
   | IMPL

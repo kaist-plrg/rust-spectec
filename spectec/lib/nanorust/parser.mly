@@ -64,7 +64,7 @@ item:
   //| "impl" tvars = opt_tvars d = ID ts = opt_typs "for" t = typ cons = opt_constraint "{" f = func "}" { Impl (tvars, d, ts, t, cons, f) }
 
 func:
-  | "fn" f = identifier "{" e = term "}"
+  | "fn" f = ID tvars = opt_tvars "(" ps = params ")" "->" t = typ cons = opt_constraint "{" e = term "}"
   { [ Term "FUN"; NT f; Term "{"; NT e; Term "}" ] #@ "func" }
 
 term:
