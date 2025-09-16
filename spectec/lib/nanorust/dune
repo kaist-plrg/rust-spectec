@@ -1,7 +1,7 @@
 (library
  (name nanorust)
- (libraries menhirLib)
- (modules parser lexer))
+ (libraries util concrete domain xl il core_unix menhirLib)
+ (modules parser lexer parse))
 
 (ocamllex
  (modules lexer))

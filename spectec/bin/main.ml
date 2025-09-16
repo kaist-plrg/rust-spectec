@@ -46,7 +46,7 @@ let run_il_command =
          let spec = List.concat_map Frontend.Parse.parse_file filenames_spec in
          let spec_il = elab_spec spec in
          let value_program =
-           P4.Parse.parse_file includes_target filename_target
+           Nanorust.Parse.parse_file includes_target filename_target
          in
          let ctx_init = Interp_il.Runner.init ~debug ~profile filename_target in
          let _, _ =
