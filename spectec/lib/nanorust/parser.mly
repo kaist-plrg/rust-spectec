@@ -1,0 +1,147 @@
+%{
+open Ast
+
+let rec check_lv (lv: term) =
+  match lv with
+  | Var _ -> true
+  | Deref _ -> true
+  | Member (lv, _) -> check_lv lv
+  | _ -> false
+%}
+
+%token <string> ID
+%token LPAREN "("
+%token RPAREN ")"
+%token LCURLB "{"
+%token RCURLB "}"
+%token LANGLE "<"
+%token RANGLE ">"
+%token ARROW "->"
+%token THICKARROW "=>"
+%token EQ "="
+%token CEQ ":="
+%token DOT "."
+%token SEMICOLON ";"
+%token COLON ":"
+%token AMP "&"
+%token ASTERISK "*"
+%token COMMA ","
+%token FUNC "fn"
+%token LET "let"
+%token IN "in"
+%token AS "as"
+%token WHERE "where"
+%token STRUCT "struct"
+%token TRAIT "trait"
+%token FOR "for"
+%token SELF "Self"
+%token FORALL "∀"
+%token IMPL "impl"
+%token EOF
+
+%nonassoc BELOW_SEMI
+%left SEMICOLON
+
+%nonassoc PREC_TERM_END
+%left DOT
+
+%start <Ast.pgm> pgm
+%%
+
+pgm:
+  | EOF { [] }
+  | t = item p = pgm { t :: p }
+
+item:
+  | f = func { Fun f }
+  | "struct" s = ID tvars = opt_tvars "{" elems = params "}" { Struct (s, tvars, elems) }
+  | "trait" d = ID tvars = opt_tvars "for" "Self"  cons = opt_constraint "{" f = ID ":" scheme = type_scheme "}" { Trait (d, tvars, cons, f, scheme) }
+  | "impl" tvars = opt_tvars d = ID ts = opt_typs "for" t = typ cons = opt_constraint "{" f = func "}" { Impl (tvars, d, ts, t, cons, f) }
+
+func:
+  | "fn" f = ID tvars = opt_tvars "(" ps = params ")" "->" t = typ cons = opt_constraint "{" e = term "}"
+    { (f, tvars, ps, t, cons, e) }
+
+type_scheme:
+  | "∀" tvars = ids "." cons = constraints "=>" t = typ { (tvars, cons, t) }
+  | t = typ { ([], [], t) }
+
+ids: separated_list(",", ID) { $1 }
+
+params: separated_list(",", param) { $1 }
+
+param: x = ID ":" t = typ { (x, t) }
+
+opt_tvars:
+  | "<" tvars = ids ">" { tvars }
+  | { [] }
+
+opt_typs:
+  | "<" ts = typs ">" { ts }
+  | { [] } 
+
+opt_constraint:
+  | "where" cons = constraints { cons } 
+  | { [] }
+
+constraints: separated_list(",", cons) { $1 }
+
+cons:
+  | t = typ ":" x = ID "<" ts = typs ">" { (t, (x, ts)) }
+  | t = typ ":" x = ID { (t, (x, [])) }
+
+typs: separated_list(",", typ) { $1 }
+
+typ:
+  | "(" ")" { UnitT }
+  | x = ID { Tvar x }
+  | "Self" { Tvar "Self" }
+  | "fn" "(" ts = typs ")" "->" t = typ { Fntype (ts, t) }
+  | "&" t = typ { Reftype t }
+  | x = ID "<" ts = typs ">" { Structtype (x, ts) }
+
+struct_elem:
+  | x = ID ":" e = term { (x, e) }
+
+struct_elems: separated_list(",", struct_elem) { $1 }
+
+terms: separated_list(",", term) { $1 }
+
+term:
+  | let_term { $1 }
+
+let_term:
+  | "let" x = ID "=" v = term "in" e = term { Let (x, v, e) }
+  | seq_term { $1 }
+
+seq_term:
+  | e1 = assign_term ";" e2 = term { Sequence (e1, e2) }
+  | assign_term %prec BELOW_SEMI { $1 }
+
+assign_term:
+  | lv = member_term ":=" e = term { if check_lv(lv) then Assign (lv, e) else failwith "lhs of assign is not lvalue" }
+  | application_term { $1 }
+
+application_term:
+  | e = member_term "(" es = terms ")" { App (e, es) }
+  | typecast_term { $1 }
+
+typecast_term:
+  | e = member_term "as" t = typ { Typecast (e, t) }
+  | member_term { $1 }
+
+member_term:
+  | base=atomic suf = member_term_suffix { suf base }
+
+member_term_suffix:
+  | %prec PREC_TERM_END { fun acc -> acc }
+  | "." x = ID  suf = member_term_suffix
+      { fun acc -> suf (Member (acc, x)) }
+
+atomic: 
+  | "(" ")" { Unit }
+  | x = ID { Var x }
+  | "&" lv = member_term { if check_lv(lv) then Ref lv else failwith "ref needs lvalue" }
+  | "*" e = atomic { Deref e }
+  | s = ID "{" elems = struct_elems  "}" { StructExpr (s, elems) }
+  | "(" e = term ")" { e }

@@ -1,52 +1,38 @@
-;; Identifier (var name, func name, trait name)
-syntax identifier = ID text
+syntax id = ID text
+syntax tid = TID text
+syntax tids = tid*
 
-;; Type identifier (Tvar name)
-syntax typeIdentifier = TID text
-
-syntax typeIdentifierList = typeIdentifier*
-
-;; Type (Placeholder, definition at 2.1)
 syntax type
 
-;; Define type scheme (forall T. phi => type)
-syntax traitBound = identifier `< typeIdentifierList >
-
-syntax traitConstraint = type `: traitBound
-
-syntax traitConstraintList = traitConstraint*
-
-syntax typeScheme = FORALL typeIdentifierList `. traitConstraintList `=> type
-
-;; term
-syntax structMember
-
+syntax terms
+syntax structElems
 syntax term =
-  | UNIT
-  | identifier
-  | LET identifier `= term IN term
-  | term `: `= term
-  | term `; term
-  | `& term
-  | `* term
-  | term `( term* )
-  | term AS type
-  | STRUCT identifier `{ structMember* }
-  | term `. identifier
+  | UNIT                        ;; Unit term `()`
+  | id                          ;; `x`
+  | LET id `= term IN term      ;; let binding `let x = e in e`
+  | ASSIGN term `= term         ;; assignment `x := e`, originally lv
+  | SEQ term `; term            ;; sequence `e; e`
+  | REF term                    ;; `&e`, originally lv
+  | DEREF term                  ;; `*e`
+  | APP term `( terms )         ;; `e(es)
+  | TYPECAST term AS type       ;; `e as typ`
+  | STRUCT id structElems       ;; `S<x:e list>`
+  | MEMBER term id              ;; `e.x`
 
-syntax structMember = identifier `: term
+syntax terms = term*
+syntax structElem = id `: term
+syntax structElems = structElem*
 
-;; func
-syntax termType = term `: type
+syntax vartype = id `: type
+syntax vartypes = vartype*
 
 syntax func =
-  | FUN identifier `< typeIdentifierList > `( termType* ) `-> type WHERE traitConstraintList `{ term }
+  | FN id tids vartypes `-> 
 
 syntax item =
-  | func
-  | STRUCT identifier `< typeIdentifierList > `{ termType* }
-  | TRAIT identifier `< typeIdentifierList > WHERE traitConstraintList `{ identifier `: typeScheme }
-  | IMPL `< typeIdentifierList > identifier `< type* > WHERE traitConstraintList `{ func }
+  | FUNC
+  | STRUCT
+  | TRAIT
+  | IMPL
 
-;; NanoRust program
 syntax pgm = item*

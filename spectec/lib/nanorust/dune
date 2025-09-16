@@ -1,0 +1,11 @@
+(library
+ (name nanorust)
+ (libraries menhirLib)
+ (modules parser lexer))
+
+(ocamllex
+ (modules lexer))
+
+(menhir
+ (modules parser)
+ (flags --explain --table --inspection))

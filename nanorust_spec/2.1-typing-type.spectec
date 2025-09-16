@@ -1,0 +1,9 @@
+syntax types
+syntax type =
+  | UNITT               ;; Unit type
+  | tid                 ;; Type variable
+  | FUNCT types type    ;; Function type
+  | REFT type           ;; Reference type
+  | STRUCTT types
+
+syntax types = type*
