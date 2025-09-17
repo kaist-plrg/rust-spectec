@@ -34,10 +34,12 @@ syntax conss = cons*
 syntax func =
   | FN id tids varTypes `-> type WHERE conss `{ term }
 
+syntax typeScheme = FORALL tvars `. conss `-> type
+
 syntax item =
   | func
-  | STRUCT
-  | TRAIT
-  | IMPL
+  | STRUCT id tids `{ varTypes }
+  | TRAIT id tids WHERE conss `{ id `: typeScheme } 
+  | IMPL tids id types FOR type WHERE conss `{ func }
 
 syntax pgm = item*

@@ -18,18 +18,92 @@ let transfer_tids (ts: tvar list) =
 let rec transfer_type (t: typ) =
   match t with
   | UnitT -> [ Term "UNITT" ] #@ "type"
-  | Tvar _ -> failwith "TODO"
-  | Fntype _ -> failwith "TODO"
-  | Reftype _ -> failwith "TODO"
-  | Structtype _ -> failwith "TODO"
+  | Tvar tv -> [ NT (transfer_tid tv) ] #@ "type"
+  | Fntype (ts, t) -> 
+    [
+      Term "FUNCT";
+      NT (transfer_types ts);
+      NT (transfer_type t);
+    ] #@ "type"
+  | Reftype t -> [ Term "REFT"; NT (transfer_type t) ] #@ "type"
+  | Structtype (s, ts) ->
+    [
+      Term "STRUCTT";
+      NT (transfer_id s);
+      NT (transfer_types ts);
+    ] #@ "type"
 and transfer_types (ts : typ list) =
   List.map transfer_type ts
   |> wrap_list_v "types"
 
-let transfer_term (e: term) =
+let rec transfer_term (e: term) =
   match e with
   | Unit -> [ Term "UNIT" ] #@ "term"
-  | _ -> failwith "TODO: term"
+  | Var x -> [ NT (transfer_id x) ] #@ "term"
+  | Let (x, v, e) ->
+    [
+      Term "LET";
+      NT (transfer_id x);
+      Term "`=";
+      NT (transfer_term v);
+      Term "IN";
+      NT (transfer_term e);
+    ] #@ "term"
+  | Assign (lv, e) ->
+    [
+      Term "ASSIGN";
+      NT (transfer_term lv);
+      Term "`=";
+      NT (transfer_term e);
+    ] #@ "term"
+  | Sequence (e1, e2) ->
+    [
+      NT (transfer_term e1);
+      Term "`;";
+      NT (transfer_term e2);
+    ] #@ "term"
+  | Ref e -> [ Term "REF"; NT (transfer_term e) ] #@ "term"
+  | Deref e -> [ Term "DEREF"; NT (transfer_term e) ] #@ "term"
+  | App (e, es) ->
+    [
+      Term "APP";
+      NT (transfer_term e);
+      Term "`(";
+      NT (transfer_terms es);
+      Term ")";
+    ] #@ "term"
+  | Typecast (e, t) ->
+    [
+      Term "TYPECAST";
+      NT (transfer_term e);
+      Term "AS";
+      NT (transfer_type t);
+    ] #@ "term"
+  | StructExpr (s, elems) ->
+    [
+      Term "STRUCT";
+      NT (transfer_id s);
+      NT (transfer_structElems elems);
+    ] #@ "term"
+  | Member (e, x) ->
+    [
+      Term "MEMBER";
+      NT (transfer_term e);
+      NT (transfer_id x);
+    ] #@ "term"
+and transfer_terms (es: term list) =
+  List.map transfer_term es
+  |> wrap_list_v "terms"
+and transfer_structElem (elem: string * term) =
+  let (s, e) = elem in
+  [
+    NT (transfer_id s);
+    Term "`:";
+    NT (transfer_term e);
+  ] #@ "structElem"
+and transfer_structElems (elems: (string * term) list) =
+  List.map transfer_structElem elems
+  |> wrap_list_v "structElems"
 
 let transfer_varType (vt: string * typ) =
   let (s, t) = vt in
@@ -82,13 +156,57 @@ let transfer_func (func: func) =
     Term "}";
   ] #@ "func"
 
+let transfer_typeScheme (scheme: type_scheme) =
+  let (tvars, conss, t) = scheme in
+  [
+    Term "FORALL";
+    NT (transfer_tids tvars);
+    Term "`.";
+    NT (transfer_conss conss);
+    Term "`->";
+    NT (transfer_type t);
+  ] #@ "typeScheme"
+
 let transfer_item (item: item) = match item with
   | Fun f ->
     let f = transfer_func f in
-    [ NT f ] #@ "func"
-  | Struct (_, _, _) -> failwith "TODO : Struct"
-  | Trait (_, _, _, _, _) -> failwith "TODO : Trait"
-  | Impl (_, _, _, _, _, _) -> failwith "TODO : Impl"
+    [ NT f ] #@ "item"
+  | Struct (s, tvars, elemTypes) ->
+    [
+      Term "STRUCT";
+      NT (transfer_id s);
+      NT (transfer_tids tvars);
+      Term "`{";
+      NT (transfer_varTypes elemTypes);
+      Term "}";
+    ] #@ "item"
+  | Trait (d, tvars, conss, f, sigma) ->
+    [
+      Term "TRAIT";
+      NT (transfer_id d);
+      NT (transfer_tids tvars);
+      Term "WHERE";
+      NT (transfer_conss conss);
+      Term "`{";
+      NT (transfer_id f);
+      Term "`:";
+      NT (transfer_typeScheme sigma);
+      Term "}";
+    ] #@ "item"
+  | Impl (tvars, d, typs, t, conss, func) ->
+    [
+      Term "IMPL";
+      NT (transfer_tids tvars);
+      NT (transfer_id d);
+      NT (transfer_types typs);
+      Term "FOR";
+      NT (transfer_type t);
+      Term "WHERE";
+      NT (transfer_conss conss);
+      Term "`{";
+      NT (transfer_func func);
+      Term "}";
+    ] #@ "item"
 
 let transfer_pgm (pgm: pgm) =
   let items = List.map transfer_item pgm in
