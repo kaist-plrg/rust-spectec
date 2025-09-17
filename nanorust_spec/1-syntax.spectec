@@ -3,6 +3,7 @@ syntax tid = TID text
 syntax tids = tid*
 
 syntax type
+syntax types = type*
 
 syntax terms
 syntax structElems
@@ -26,8 +27,12 @@ syntax structElems = structElem*
 syntax varType = id `: type
 syntax varTypes = vartype*
 
+syntax bound = id `< types >
+syntax cons = type `: bound
+syntax conss = cons*
+
 syntax func =
-  | FN id tids varTypes `-> type `{ term }
+  | FN id tids varTypes `-> type WHERE conss `{ term }
 
 syntax item =
   | func
