@@ -38,7 +38,7 @@ syntax func =
 syntax typeScheme = FORALL tids `. conss `-> type
 
 syntax item =
-  | func
+  | FN id tids varTypes `-> type WHERE conss `{ term } ;;func
   | STRUCT id tids `{ varTypes }
   | TRAIT id tids WHERE conss `{ id `: typeScheme } 
   | IMPL tids id types FOR type WHERE conss `{ func }

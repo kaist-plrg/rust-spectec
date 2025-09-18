@@ -1,0 +1,29 @@
+;; Construction of the context
+var F : id
+
+;; Construct program context
+rule Construct_pgm_context/nil:
+  [] ~> [] ~~ []
+
+rule Construct_pgm_context/cons:
+  item_h :: item_t*
+  ~> typeEnv_head ++ typeEnv_tail
+  ~~ consEnv_head ++ consEnv_tail
+  -- Construct_context: item_h ~> typeEnv_head ~~ consEnv_head
+  -- Construct_pgm_context: item_t* ~> typeEnv_tail ~~ consEnv_tail
+
+rule Construct_context/struct:
+  STRUCT id tids `{ varTypes }
+  ~> [STRUCTINFO id tids varTypes] ~~ []
+
+rule Construct_context/func:
+  FN id tids varTypes `-> type WHERE conss `{ term }
+  ~> [] ~~ [] ;; TODO
+
+rule Construct_context/trait:
+  TRAIT id tids WHERE conss `{ F `: typeScheme }
+  ~> [] ~~ [] ;; TODO
+
+rule Construct_context/impl:
+  IMPL tids id types FOR type WHERE conss `{ func }
+  ~> [] ~~ [] ;; TODO

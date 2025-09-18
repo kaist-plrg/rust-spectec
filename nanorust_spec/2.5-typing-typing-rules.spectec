@@ -1,0 +1,7 @@
+;; Since we need mutual context on every items,
+;; We first collect all context w/o type checking.
+;; Then, we type check with that context.
+rule Program_ok/pgm:
+  |- item* : typeEnv ~~ consEnv ;; TODO
+  -- Construct_pgm_context: item* ~> typeEnv ~~ consEnv
+  -- (Item_ok: typeEnv ~~ consEnv |- item)*

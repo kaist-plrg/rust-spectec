@@ -44,7 +44,7 @@ let rec transfer_term (e: term) =
     [
       Term "LET";
       NT (transfer_id x);
-      Term "`=";
+      Term "=";
       NT (transfer_term v);
       Term "IN";
       NT (transfer_term e);
@@ -53,13 +53,13 @@ let rec transfer_term (e: term) =
     [
       Term "ASSIGN";
       NT (transfer_term lv);
-      Term "`=";
+      Term "=";
       NT (transfer_term e);
     ] #@ "term"
   | Sequence (e1, e2) ->
     [
       NT (transfer_term e1);
-      Term "`;";
+      Term ";";
       NT (transfer_term e2);
     ] #@ "term"
   | Ref e -> [ Term "REF"; NT (transfer_term e) ] #@ "term"
@@ -68,7 +68,7 @@ let rec transfer_term (e: term) =
     [
       Term "APP";
       NT (transfer_term e);
-      Term "`(";
+      Term "(";
       NT (transfer_terms es);
       Term ")";
     ] #@ "term"
@@ -98,7 +98,7 @@ and transfer_structElem (elem: string * term) =
   let (s, e) = elem in
   [
     NT (transfer_id s);
-    Term "`:";
+    Term ":";
     NT (transfer_term e);
   ] #@ "structElem"
 and transfer_structElems (elems: (string * term) list) =
@@ -109,7 +109,7 @@ let transfer_varType (vt: string * typ) =
   let (s, t) = vt in
   [
     NT (transfer_id s);
-    Term "`:";
+    Term ":";
     NT (transfer_type t);
   ]
   #@ "varType"
@@ -122,7 +122,7 @@ let transfer_bound (beta: trait_bound) =
   let (d, ts) = beta in
   [
     NT (transfer_id d);
-    Term "`<";
+    Term "<";
     NT (transfer_types ts);
     Term ">";
   ] #@ "bound"
@@ -131,7 +131,7 @@ let transfer_cons (cons: trait_const) =
   let (t, beta) = cons in
   [
     NT (transfer_type t);
-    Term "`:";
+    Term ":";
     NT (transfer_bound beta);
   ] #@ "cons"
 
@@ -147,11 +147,11 @@ let transfer_func (func: func) =
     NT (transfer_id f);
     NT (transfer_tids ts);
     NT (transfer_varTypes params);
-    Term "`->";
+    Term "->";
     NT (transfer_type t);
     Term "WHERE";
     NT (transfer_conss conss);
-    Term "`{";
+    Term "{";
     NT (transfer_term e);
     Term "}";
   ] #@ "func"
@@ -161,22 +161,20 @@ let transfer_typeScheme (scheme: type_scheme) =
   [
     Term "FORALL";
     NT (transfer_tids tvars);
-    Term "`.";
+    Term ".";
     NT (transfer_conss conss);
-    Term "`->";
+    Term "->";
     NT (transfer_type t);
   ] #@ "typeScheme"
 
 let transfer_item (item: item) = match item with
-  | Fun f ->
-    let f = transfer_func f in
-    [ NT f ] #@ "item"
+  | Fun f -> transfer_func f
   | Struct (s, tvars, elemTypes) ->
     [
       Term "STRUCT";
       NT (transfer_id s);
       NT (transfer_tids tvars);
-      Term "`{";
+      Term "{";
       NT (transfer_varTypes elemTypes);
       Term "}";
     ] #@ "item"
@@ -187,9 +185,9 @@ let transfer_item (item: item) = match item with
       NT (transfer_tids tvars);
       Term "WHERE";
       NT (transfer_conss conss);
-      Term "`{";
+      Term "{";
       NT (transfer_id f);
-      Term "`:";
+      Term ":";
       NT (transfer_typeScheme sigma);
       Term "}";
     ] #@ "item"
@@ -203,7 +201,7 @@ let transfer_item (item: item) = match item with
       NT (transfer_type t);
       Term "WHERE";
       NT (transfer_conss conss);
-      Term "`{";
+      Term "{";
       NT (transfer_func func);
       Term "}";
     ] #@ "item"
