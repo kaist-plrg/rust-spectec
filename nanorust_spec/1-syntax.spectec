@@ -35,7 +35,9 @@ syntax conss = cons*
 syntax func =
   | FN id tids varTypes `-> type WHERE conss `{ term }
 
-syntax typeScheme = FORALL tids `. conss `-> type
+syntax typeScheme =
+  | FORALL tids `. conss `-> typeScheme
+  | JUST type ;; escpecially, empty tids and conss
 
 syntax item =
   | FN id tids varTypes `-> type WHERE conss `{ term } ;;func

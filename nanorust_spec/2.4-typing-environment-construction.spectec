@@ -24,11 +24,13 @@ rule Construct_context/func:
   ~> [VARTYPE id scheme] ~~ eps
   -- if ($getParamType(varType) = t)*
   -- if funType = FUNCT t* type
-  -- if scheme = FORALL tids `. conss `-> funType
+  -- if scheme = FORALL tids `. conss `-> ( JUST funType )
 
 rule Construct_context/trait:
   TRAIT id tids WHERE conss `{ fid `: typeScheme }
-  ~> [] ~~ [] ;; TODO
+  ~> [TRAITINFO id tids eps eps fid, VARTYPE fid scheme]
+  ~~ [] ;; TODO
+  -- if scheme = FORALL eps `. eps `-> typeScheme
 
 rule Construct_context/impl:
   IMPL tids id types FOR type WHERE conss `{ _ }
