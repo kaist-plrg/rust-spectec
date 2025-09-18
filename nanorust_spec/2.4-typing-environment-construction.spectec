@@ -20,7 +20,7 @@ rule Construct_context/struct:
   ~> [STRUCTINFO id tids varTypes] ~~ eps
 
 rule Construct_context/func:
-  FN id tids varType* `-> type WHERE conss `{ term }
+  FN id tids varType* `-> type WHERE conss `{ _ }
   ~> [VARTYPE id scheme] ~~ eps
   -- if ($getParamType(varType) = t)*
   -- if funType = FUNCT t* type
@@ -31,5 +31,6 @@ rule Construct_context/trait:
   ~> [] ~~ [] ;; TODO
 
 rule Construct_context/impl:
-  IMPL tids id types FOR type WHERE conss `{ func }
-  ~> [] ~~ [] ;; TODO
+  IMPL tids id types FOR type WHERE conss `{ _ }
+  ~> eps ~~ [FORALL tids `. conss `-> cons]
+  -- if cons = type `: ( id `< types > )
