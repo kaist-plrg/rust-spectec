@@ -1,0 +1,2 @@
+dec $getParamType(varType): type
+def $getParamType(id `: type) = type

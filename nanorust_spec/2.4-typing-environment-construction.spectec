@@ -1,9 +1,12 @@
 ;; Construction of the context
-var F : id
+var fid : id
+var t : type
+var funType : type
+var scheme : typeScheme
 
 ;; Construct program context
 rule Construct_pgm_context/nil:
-  [] ~> [] ~~ []
+  eps ~> eps ~~ eps
 
 rule Construct_pgm_context/cons:
   item_h :: item_t*
@@ -14,14 +17,17 @@ rule Construct_pgm_context/cons:
 
 rule Construct_context/struct:
   STRUCT id tids `{ varTypes }
-  ~> [STRUCTINFO id tids varTypes] ~~ []
+  ~> [STRUCTINFO id tids varTypes] ~~ eps
 
 rule Construct_context/func:
-  FN id tids varTypes `-> type WHERE conss `{ term }
-  ~> [] ~~ [] ;; TODO
+  FN id tids varType* `-> type WHERE conss `{ term }
+  ~> [VARTYPE id scheme] ~~ eps
+  -- if ($getParamType(varType) = t)*
+  -- if funType = FUNCT t* type
+  -- if scheme = FORALL tids `. conss `-> funType
 
 rule Construct_context/trait:
-  TRAIT id tids WHERE conss `{ F `: typeScheme }
+  TRAIT id tids WHERE conss `{ fid `: typeScheme }
   ~> [] ~~ [] ;; TODO
 
 rule Construct_context/impl:

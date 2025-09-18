@@ -5,3 +5,16 @@ rule Program_ok/pgm:
   |- item* : typeEnv ~~ consEnv ;; TODO
   -- Construct_pgm_context: item* ~> typeEnv ~~ consEnv
   -- (Item_ok: typeEnv ~~ consEnv |- item)*
+
+;; Typing rule for items
+rule Item_ok/struct:
+  typeEnv ~~ consEnv |- STRUCT id tids `{ varTypes }
+
+rule Item_ok/func:
+  typeEnv ~~ consEnv |- FN id tids varTypes `-> type WHERE conss `{ term }
+
+rule Item_ok/trait:
+  typeEnv ~~ consEnv |- TRAIT id tids WHERE conss `{ fid `: typeScheme }
+
+rule Item_ok/impl:
+  typeEnv ~~ consEnv |- IMPL tids id types FOR type WHERE conss `{ func }
