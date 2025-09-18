@@ -1,3 +1,5 @@
-fn f {
-    ()
+fn f() -> () {
+    let x = () in
+    let y = () in
+    x; y
 }

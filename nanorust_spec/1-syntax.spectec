@@ -25,16 +25,17 @@ syntax structElem = id `: term
 syntax structElems = structElem*
 
 syntax varType = id `: type
-syntax varTypes = vartype*
+syntax varTypes = varType*
 
 syntax bound = id `< types >
+syntax bounds = bound*
 syntax cons = type `: bound
 syntax conss = cons*
 
 syntax func =
   | FN id tids varTypes `-> type WHERE conss `{ term }
 
-syntax typeScheme = FORALL tvars `. conss `-> type
+syntax typeScheme = FORALL tids `. conss `-> type
 
 syntax item =
   | func

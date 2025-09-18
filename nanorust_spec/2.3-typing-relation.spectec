@@ -1,0 +1,29 @@
+;; Program type checking relation
+;; \vdash_P pgm : \Gamma | \Theta
+
+relation Program_ok:
+  |- pgm : typeEnv ~~ consEnv
+  hint(input %0)
+
+;; Since we need mutual context on every items,
+;; We first collect all context w/o type checking.
+;; Then, we type check with that context.
+rule Program_ok/pgm:
+  |- pgm : [] ~~ [] ;; TODO
+
+;; Context construction relation
+relation Construct_context:
+  item ~> typeEnv ~~ consEnv
+  hint(input %0)
+
+rule Construct_context/struct:
+  (STRUCT id tids `{ varTypes }) ~> [STRUCTINFO id tids varTypes] ~~ []
+
+rule Construct_context/func:
+  func ~> [] ~~ [] ;; TODO
+
+rule Construct_context/trait:
+  (TRAIT id tids WHERE conss `{ id `: typeScheme }) ~> [] ~~ [] ;; TODO
+
+rule Construct_context/impl:
+  (IMPL tids id types FOR type WHERE conss `{ func }) ~> [] ~~ [] ;; TODO
