@@ -3,6 +3,8 @@ var fid : id
 var t : type
 var funType : type
 var scheme : typeScheme
+var nonSelfConss : conss
+var selfBounds : bounds
 
 ;; Construct program context
 rule Construct_pgm_context/nil:
@@ -28,9 +30,11 @@ rule Construct_context/func:
 
 rule Construct_context/trait:
   TRAIT id tids WHERE conss `{ fid `: typeScheme }
-  ~> [TRAITINFO id tids eps eps fid, VARTYPE fid scheme]
+  ~> [TRAITINFO id tids nonSelfConss selfBounds fid, VARTYPE fid scheme]
   ~~ [] ;; TODO
   -- if scheme = FORALL eps `. eps `-> typeScheme
+  -- if nonSelfConss = $getNonSelfConss(conss)
+  -- if selfBounds = $getSelfBounds(conss)
 
 rule Construct_context/impl:
   IMPL tids id types FOR type WHERE conss `{ _ }

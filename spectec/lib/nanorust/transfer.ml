@@ -18,7 +18,7 @@ let transfer_tids (ts: tvar list) =
 let rec transfer_type (t: typ) =
   match t with
   | UnitT -> [ Term "UNITT" ] #@ "type"
-  | Tvar tv -> [ NT (transfer_tid tv) ] #@ "type"
+  | Tvar tv -> transfer_tid tv
   | Fntype (ts, t) -> 
     [
       Term "FUNCT";

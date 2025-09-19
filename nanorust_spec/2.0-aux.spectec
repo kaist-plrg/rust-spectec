@@ -1,2 +1,25 @@
 dec $getParamType(varType): type
 def $getParamType(id `: type) = type
+
+dec $getBoundfromCons(cons): bound
+def $getBoundfromCons(type `: bound) = bound
+
+dec $isSelfConss(cons): bool
+def $isSelfConss(type `: bound) = true
+  -- if tid = TID "Self"
+def $isSelfConss(cons) = false
+  -- otherwise
+
+dec $getNonSelfConss(conss): conss
+def $getNonSelfConss(eps) = eps
+def $getNonSelfConss(cons_h :: cons_t*) = $getNonSelfConss(cons_t*)
+  -- if $isSelfConss(cons_h)
+def $getNonSelfConss(cons_h :: cons_t*) = cons_h :: $getNonSelfConss(cons_t*)
+  -- otherwise
+
+dec $getSelfBounds(conss): bounds
+def $getSelfBounds(eps) = eps
+def $getSelfBounds(cons_h :: cons_t*) = $getBoundfromCons(cons_h) :: $getSelfBounds(cons_t*)
+  -- if $isSelfConss(cons_h)
+def $getSelfBounds(cons_h :: cons_t*) = $getSelfBounds(cons_t*)
+  -- otherwise
