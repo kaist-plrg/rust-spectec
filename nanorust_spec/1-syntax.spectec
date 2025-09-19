@@ -1,0 +1,48 @@
+syntax id = ID text
+syntax tid = TID text
+syntax tids = tid*
+
+syntax type
+syntax types = type*
+
+syntax terms
+syntax structElems
+syntax term =
+  | UNIT                        ;; Unit term `()`
+  | id                          ;; `x`
+  | LET id `= term IN term      ;; let binding `let x = e in e`
+  | ASSIGN term `= term         ;; assignment `x := e`, originally lv
+  | SEQ term `; term            ;; sequence `e; e`
+  | REF term                    ;; `&e`, originally lv
+  | DEREF term                  ;; `*e`
+  | APP term `( terms )         ;; `e(es)
+  | TYPECAST term AS type       ;; `e as typ`
+  | STRUCT id structElems       ;; `S<x:e list>`
+  | MEMBER term id              ;; `e.x`
+
+syntax terms = term*
+syntax structElem = id `: term
+syntax structElems = structElem*
+
+syntax varType = id `: type
+syntax varTypes = varType*
+
+syntax bound = id `< types >
+syntax bounds = bound*
+syntax cons = type `: bound
+syntax conss = cons*
+
+syntax func =
+  | FN id tids varTypes `-> type WHERE conss `{ term }
+
+syntax typeScheme =
+  | FORALL tids `. conss `-> typeScheme
+  | JUST type ;; escpecially, empty tids and conss
+
+syntax item =
+  | FN id tids varTypes `-> type WHERE conss `{ term } ;;func
+  | STRUCT id tids `{ varTypes }
+  | TRAIT id tids WHERE conss `{ id `: typeScheme } 
+  | IMPL tids id types FOR type WHERE conss `{ func }
+
+syntax pgm = item*

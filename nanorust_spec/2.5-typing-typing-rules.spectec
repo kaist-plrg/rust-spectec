@@ -1,0 +1,21 @@
+;; Since we need mutual context on every items,
+;; We first collect all context w/o type checking.
+;; Then, we type check with that context.
+rule Program_ok/pgm:
+  |- pgm : typeEnv ~~ consEnv
+  -- if item* = pgm
+  -- Construct_pgm_context: item* ~> typeEnv ~~ consEnv
+  -- (Item_ok: typeEnv ~~ consEnv |- item)*
+
+;; Typing rule for items (TODO)
+rule Item_ok/struct:
+  typeEnv ~~ consEnv |- STRUCT id tids `{ varTypes }
+
+rule Item_ok/func:
+  typeEnv ~~ consEnv |- FN id tids varTypes `-> type WHERE conss `{ term }
+
+rule Item_ok/trait:
+  typeEnv ~~ consEnv |- TRAIT id tids WHERE conss `{ fid `: typeScheme }
+
+rule Item_ok/impl:
+  typeEnv ~~ consEnv |- IMPL tids id types FOR type WHERE conss `{ func }

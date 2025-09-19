@@ -1,0 +1,42 @@
+;; Construction of the context
+var fid : id
+var t : type
+var funType : type
+var scheme : typeScheme
+var nonSelfConss : conss
+var selfBounds : bounds
+
+;; Construct program context
+rule Construct_pgm_context/nil:
+  eps ~> eps ~~ eps
+
+rule Construct_pgm_context/cons:
+  item_h :: item_t*
+  ~> typeEnv_head ++ typeEnv_tail
+  ~~ consEnv_head ++ consEnv_tail
+  -- Construct_context: item_h ~> typeEnv_head ~~ consEnv_head
+  -- Construct_pgm_context: item_t* ~> typeEnv_tail ~~ consEnv_tail
+
+rule Construct_context/struct:
+  STRUCT id tids `{ varTypes }
+  ~> [STRUCTINFO id tids varTypes] ~~ eps
+
+rule Construct_context/func:
+  FN id tids varType* `-> type WHERE conss `{ _ }
+  ~> [VARTYPE id scheme] ~~ eps
+  -- if ($getParamType(varType) = t)*
+  -- if funType = FUNCT t* type
+  -- if scheme = FORALL tids `. conss `-> ( JUST funType )
+
+rule Construct_context/trait:
+  TRAIT id tids WHERE conss `{ fid `: typeScheme }
+  ~> [TRAITINFO id tids nonSelfConss selfBounds fid, VARTYPE fid scheme]
+  ~~ [] ;; TODO
+  -- if scheme = FORALL eps `. eps `-> typeScheme
+  -- if nonSelfConss = $getNonSelfConss(conss)
+  -- if selfBounds = $getSelfBounds(conss)
+
+rule Construct_context/impl:
+  IMPL tids id types FOR type WHERE conss `{ _ }
+  ~> eps ~~ [FORALL tids `. conss `-> cons]
+  -- if cons = type `: ( id `< types > )

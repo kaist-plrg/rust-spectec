@@ -1,0 +1,10 @@
+syntax typeEnvElem =
+  | VARTYPE id typeScheme               ;; x : \sigma (type of the variable)
+  | TVAR tid                            ;; T (type variable validation)
+  | STRUCTINFO id tids varTypes         ;; S<`T> {`x:t}
+  | TRAITINFO id tids conss bounds id   ;; Trait info D<`T> where `pi, `beta {f}  (beta is constraint of Self)
+
+syntax typeEnv = typeEnvElem*
+
+syntax consScheme = FORALL tids `. conss `-> cons
+syntax consEnv = consScheme*

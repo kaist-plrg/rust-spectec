@@ -1,0 +1,11 @@
+(library
+ (name nanorust)
+ (libraries util concrete domain xl il core_unix menhirLib)
+ (modules ast parser lexer parse transfer))
+
+(ocamllex
+ (modules lexer))
+
+(menhir
+ (modules parser)
+ (flags --explain --table --inspection))

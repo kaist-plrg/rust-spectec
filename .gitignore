@@ -7,3 +7,9 @@ spectec-core
 
 # MacOS
 *.DS_Store
+
+# VSCode
+.vscode
+
+# For elaboration testing
+output.spectec

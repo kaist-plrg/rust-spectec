@@ -1,0 +1,20 @@
+;; Program type checking relation
+;; \vdash_P pgm : \Gamma | \Theta
+relation Program_ok:
+  |- pgm : typeEnv ~~ consEnv
+  hint(input %0)
+
+;; Collect all pgm context from items
+relation Construct_pgm_context:
+  pgm ~> typeEnv ~~ consEnv
+  hint(input %0)
+
+;; Context construction relation on item
+relation Construct_context:
+  item ~> typeEnv ~~ consEnv
+  hint(input %0)
+
+;; Check item is well-typed in complete context
+relation Item_ok:
+  typeEnv ~~ consEnv |- item
+  hint(input %0 %1 %2)
