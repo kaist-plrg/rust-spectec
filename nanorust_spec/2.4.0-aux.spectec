@@ -23,3 +23,6 @@ def $getSelfBounds(cons_h :: cons_t*) = $getBoundfromCons(cons_h) :: $getSelfBou
   -- if $isSelfConss(cons_h)
 def $getSelfBounds(cons_h :: cons_t*) = $getSelfBounds(cons_t*)
   -- otherwise
+
+dec $varTypeToTypeEnv(varType): typeEnvElem
+def $varTypeToTypeEnv(id `: type) = VARTYPE id (JUST type)

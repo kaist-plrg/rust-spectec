@@ -7,7 +7,8 @@ rule Program_ok/pgm:
   -- Construct_pgm_context: item* ~> typeEnv ~~ consEnv
   -- (Item_ok: typeEnv ~~ consEnv |- item)*
 
-var newTypeEnv : typeEnv
+var newTypeEnv: typeEnv
+var newConsEnv: consEnv
 
 ;; Typing rule for items (TODO)
 rule Item_ok/struct:
@@ -17,11 +18,13 @@ rule Item_ok/struct:
   -- (Scheme_wf: newTypeEnv |- (JUST type))*
 
 rule Item_ok/func:
-  typeEnv ~~ consEnv |- FN id tids varTypes `-> type WHERE conss `{ term }
+  typeEnv ~~ consEnv |- FN id tid* varType* `-> type WHERE cons* `{ term }
   -- if ($getParamType(varType) = t)*
   -- if funType = FUNCT t* type
-  -- if scheme = FORALL tids `. conss `-> ( JUST funType )
+  -- if scheme = FORALL tid* `. cons* `-> ( JUST funType )
   -- Scheme_wf: typeEnv |- scheme
+  -- if newTypeEnv = typeEnv ++ (TVAR tid)* ++ ($varTypeToTypeEnv(varType))*
+  -- if newConsEnv = consEnv ++ (JUST cons)*
   ;; TODO : typeCheck term
 
 rule Item_ok/trait:
