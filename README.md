@@ -1,7 +1,7 @@
-# SpecTec-Core
+# Rust-SpecTec
 
-A spec programming framework.
-SpecTec was originally developed for WebAssembly (Wasm-SpecTec), then adapted/generalized for P4 (P4-SpecTec). SpecTec Core is a stripped down version of P4-SpecTec's algorithmic flavor, meant to serve as a base for adaptation to other languages or domains.
+Writing specification using [SpecTec-Core](https://github.com/kaist-plrg/spectec-core), which is generalized from Wasm and P4.
+See `nanorust_spec` folder to see specification of [NanoRust](https://open.library.ubc.ca/media/stream/pdf/24/1.0220521/4).
 
 ### Installation
 
