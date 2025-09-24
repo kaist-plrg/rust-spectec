@@ -11,5 +11,6 @@ spectec-core
 # VSCode
 .vscode
 
-# For elaboration testing
+# For elaboration testing, run-il debugging
 output.spectec
+output.txt
