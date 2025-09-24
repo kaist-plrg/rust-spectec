@@ -1,0 +1,7 @@
+rule Term_ok/as:
+  typeEnv ~~ consEnv |- TYPECAST term AS type : type
+  -- Term_ok: typeEnv ~~ consEnv |- term : type
+
+rule Term_ok/unit:
+  typeEnv ~~ consEnv |- UNIT : UNITT
+

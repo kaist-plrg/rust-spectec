@@ -25,10 +25,15 @@ relation Term_ok:
   hint(input %0 %1 %2)
 
 ;; Check that scheme is well-formed in typeEnv
-;; type is special case of typeScheme
-;; (typeScheme = JUST type)
 relation Scheme_wf:
   typeEnv |- typeScheme
+  hint(input %0 %1)
+
+;; Type_wf is special case of Scheme_wf
+;; (typeScheme = JUST type)
+;; Connection via Scheme_wf/just
+relation Type_wf:
+  typeEnv |- type
   hint(input %0 %1)
 
 relation ConsScheme_wf:

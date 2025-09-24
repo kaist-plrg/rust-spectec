@@ -1,0 +1,274 @@
+Parse success 
+Opening rule Program_ok/pgm
+--- with input ---
+[
+  fn id f [] [] -> unitt where [] { unit }
+]
+----------------
+
+Premise: let item*{item <- item*} = pgm
+
+Premise: Construct_pgm_context: item*{item <- item*} ~> typeEnv ~~ consEnv
+
+Closing iteration
+
+Opening rule Construct_pgm_context/nil
+--- with input ---
+[
+  fn id f [] [] -> unitt where [] { unit }
+]
+----------------
+
+Premise: if item*{item <- item*} matches []
+
+Closing iteration
+
+Opening rule Construct_pgm_context/cons
+--- with input ---
+[
+  fn id f [] [] -> unitt where [] { unit }
+]
+----------------
+
+Premise: if item*{item <- item*} matches _ :: _
+
+Closing iteration
+
+Premise: let item_h :: item_t*{item_t <- item_t*} = item*{item <- item*}
+
+Closing iteration
+
+Premise: Construct_context: item_h ~> typeEnv_head ~~ consEnv_head
+
+Opening rule Construct_context/struct
+--- with input ---
+fn id f [] [] -> unitt where [] { unit }
+----------------
+
+Premise: if item matches `STRUCT%%{%}`
+
+Opening rule Construct_context/func
+--- with input ---
+fn id f [] [] -> unitt where [] { unit }
+----------------
+
+Premise: if item matches `FN%%%->%WHERE%{%}`
+
+Premise: let fn id tids varType*{varType <- varType*} -> type where conss { _term } = item
+
+Premise: (let t = $getParamType(varType))*{t <- t*, varType <- varType*}
+
+Premise: let funType = funct t*{t <- t*} type
+
+Premise: let scheme = forall tids . conss -> just funType
+
+Closing rule Construct_context/func
+
+Premise: Construct_pgm_context: item_t*{item_t <- item_t*} ~> typeEnv_tail ~~ consEnv_tail
+
+Opening rule Construct_pgm_context/nil
+--- with input ---
+[]
+----------------
+
+Premise: if item*{item <- item*} matches []
+
+Closing rule Construct_pgm_context/nil
+
+Closing rule Construct_pgm_context/cons
+
+Premise: (if Item_ok: typeEnv ~~ consEnv |- item holds)*{item <- item*}
+
+Premise: if Item_ok: typeEnv ~~ consEnv |- item holds
+
+Opening rule Item_ok/struct
+--- with input ---
+[
+  vartype id f forall [] . [] -> just funct [] unitt
+]
+[]
+fn id f [] [] -> unitt where [] { unit }
+----------------
+
+Premise: if item matches `STRUCT%%{%}`
+
+Opening rule Item_ok/func
+--- with input ---
+[
+  vartype id f forall [] . [] -> just funct [] unitt
+]
+[]
+fn id f [] [] -> unitt where [] { unit }
+----------------
+
+Premise: if item matches `FN%%%->%WHERE%{%}`
+
+Premise: let fn id tid*{tid <- tid*} varType*{varType <- varType*} -> type where cons*{cons <- cons*} { term } = item
+
+Premise: (let t = $getParamType(varType))*{t <- t*, varType <- varType*}
+
+Premise: let funType = funct t*{t <- t*} type
+
+Premise: let scheme = forall tid*{tid <- tid*} . cons*{cons <- cons*} -> just funType
+
+Premise: if Scheme_wf: typeEnv |- scheme holds
+
+Opening rule Scheme_wf/scheme
+--- with input ---
+[
+  vartype id f forall [] . [] -> just funct [] unitt
+]
+forall [] . [] -> just funct [] unitt
+----------------
+
+Premise: if typeScheme' matches `FORALL%.%->%`
+
+Premise: let forall tids . conss -> typeScheme = typeScheme'
+
+Premise: if false
+
+Opening rule Scheme_wf/just
+--- with input ---
+[
+  vartype id f forall [] . [] -> just funct [] unitt
+]
+forall [] . [] -> just funct [] unitt
+----------------
+
+Premise: if typeScheme matches `JUST%`
+
+Opening rule Scheme_wf/empty_just
+--- with input ---
+[
+  vartype id f forall [] . [] -> just funct [] unitt
+]
+forall [] . [] -> just funct [] unitt
+----------------
+
+Premise: if typeScheme' matches `FORALL%.%->%`
+
+Premise: let forall tid*{tid <- tid*} . cons*{cons <- cons*} -> typeScheme = typeScheme'
+
+Premise: if tid*{tid <- tid*} matches []
+
+Premise: if cons*{cons <- cons*} matches []
+
+Premise: if Scheme_wf: typeEnv |- typeScheme holds
+
+Opening rule Scheme_wf/scheme
+--- with input ---
+[
+  vartype id f forall [] . [] -> just funct [] unitt
+]
+just funct [] unitt
+----------------
+
+Premise: if typeScheme' matches `FORALL%.%->%`
+
+Opening rule Scheme_wf/just
+--- with input ---
+[
+  vartype id f forall [] . [] -> just funct [] unitt
+]
+just funct [] unitt
+----------------
+
+Premise: if typeScheme matches `JUST%`
+
+Premise: let just type = typeScheme
+
+Premise: if Type_wf: typeEnv |- type holds
+
+Opening rule Type_wf/unit
+--- with input ---
+[
+  vartype id f forall [] . [] -> just funct [] unitt
+]
+funct [] unitt
+----------------
+
+Premise: if type matches `UNITT`
+
+Opening rule Type_wf/tid
+--- with input ---
+[
+  vartype id f forall [] . [] -> just funct [] unitt
+]
+funct [] unitt
+----------------
+
+Premise: if type <: tid
+
+Opening rule Type_wf/fun
+--- with input ---
+[
+  vartype id f forall [] . [] -> just funct [] unitt
+]
+funct [] unitt
+----------------
+
+Premise: if type' matches `FUNCT%%`
+
+Premise: let funct t*{t <- t*} type = type'
+
+Premise: (if Type_wf: typeEnv |- t holds)*{t <- t*}
+
+Premise: if Type_wf: typeEnv |- type holds
+
+Opening rule Type_wf/unit
+--- with input ---
+[
+  vartype id f forall [] . [] -> just funct [] unitt
+]
+unitt
+----------------
+
+Premise: if type matches `UNITT`
+
+Closing rule Type_wf/unit
+
+Closing rule Type_wf/fun
+
+Closing rule Scheme_wf/just
+
+Closing rule Scheme_wf/empty_just
+
+Premise: let newTypeEnv = typeEnv ++ tvar tid*{tid <- tid*} ++ $varTypeToTypeEnv(varType)*{varType <- varType*}
+
+Premise: let newConsEnv = consEnv ++ just cons*{cons <- cons*}
+
+Premise: Term_ok: newTypeEnv ~~ newConsEnv |- term : returnType
+
+Opening rule Term_ok/as
+--- with input ---
+[
+  vartype id f forall [] . [] -> just funct [] unitt
+]
+[]
+unit
+----------------
+
+Premise: if term' matches `TYPECAST%AS%`
+
+Opening rule Term_ok/unit
+--- with input ---
+[
+  vartype id f forall [] . [] -> just funct [] unitt
+]
+[]
+unit
+----------------
+
+Premise: if term matches `UNIT`
+
+Closing rule Term_ok/unit
+
+Premise: if (type = returnType)
+
+Closing rule Item_ok/func
+
+Closing iteration
+
+Closing rule Program_ok/pgm
+
+Interpreter succeeded
