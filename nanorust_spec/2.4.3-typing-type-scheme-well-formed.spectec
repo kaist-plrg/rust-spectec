@@ -13,9 +13,9 @@ rule Scheme_wf/empty_just:
 rule Type_wf/unit:
   typeEnv |- UNITT
 
-rule Type_wf/tid: ;; TODO
+rule Type_wf/tid:
   typeEnv |- tid
-  -- if false
+  -- if typeEnv <- TVAR tid
 
 rule Type_wf/fun:
   typeEnv |- FUNCT t* type
