@@ -33,4 +33,10 @@ rule Term_ok/asgn:
   -- Term_ok: typeEnv ~~ consEnv |- e1 : type
   -- Term_ok: typeEnv ~~ consEnv |- e2 : type
 
-;; TODO : var, app, new-struct, proj
+rule Term_ok/app:
+  typeEnv ~~ consEnv |- APP term_func `( term* ) : type_rt
+  -- Term_ok: typeEnv ~~ consEnv |- term_func : FUNCT type* type_rt
+  -- if |type*| = |term*|
+  -- (Term_ok: typeEnv ~~ consEnv |- term : type)*
+
+;; TODO : var new-struct proj (list find / substitution on type, cons)
