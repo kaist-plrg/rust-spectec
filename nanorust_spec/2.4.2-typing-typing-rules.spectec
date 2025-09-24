@@ -9,9 +9,8 @@ rule Program_ok/pgm:
 
 var newTypeEnv: typeEnv
 var newConsEnv: consEnv
-var returnType: type
 
-;; Typing rule for items (TODO)
+;; Typing rule for items
 rule Item_ok/struct:
   typeEnv ~~ consEnv |- STRUCT id tid* `{ varType* }
   -- if newTypeEnv = typeEnv ++ (TVAR tid)*
@@ -26,8 +25,7 @@ rule Item_ok/func:
   -- Scheme_wf: typeEnv |- scheme
   -- if newTypeEnv = typeEnv ++ (TVAR tid)* ++ ($varTypeToTypeEnv(varType))*
   -- if newConsEnv = consEnv ++ (JUST cons)*
-  -- Term_ok: newTypeEnv ~~ newConsEnv |- term : returnType
-  -- if type = returnType
+  -- Term_ok: newTypeEnv ~~ newConsEnv |- term : type
 
 rule Item_ok/trait: ;; TODO
   typeEnv ~~ consEnv |- TRAIT id tids WHERE conss `{ fid `: typeScheme }

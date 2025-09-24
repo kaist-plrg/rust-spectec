@@ -237,7 +237,7 @@ Premise: let newTypeEnv = typeEnv ++ tvar tid*{tid <- tid*} ++ $varTypeToTypeEnv
 
 Premise: let newConsEnv = consEnv ++ just cons*{cons <- cons*}
 
-Premise: Term_ok: newTypeEnv ~~ newConsEnv |- term : returnType
+Premise: Term_ok: newTypeEnv ~~ newConsEnv |- term : type'
 
 Opening rule Term_ok/as
 --- with input ---
@@ -263,7 +263,7 @@ Premise: if term matches `UNIT`
 
 Closing rule Term_ok/unit
 
-Premise: if (type = returnType)
+Premise: if (type' = type)
 
 Closing rule Item_ok/func
 

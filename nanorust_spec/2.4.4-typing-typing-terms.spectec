@@ -1,3 +1,8 @@
+var e1: term
+var e2: term
+var t1: type
+var t2: type
+
 rule Term_ok/as:
   typeEnv ~~ consEnv |- TYPECAST term AS type : type
   -- Term_ok: typeEnv ~~ consEnv |- term : type
@@ -5,3 +10,22 @@ rule Term_ok/as:
 rule Term_ok/unit:
   typeEnv ~~ consEnv |- UNIT : UNITT
 
+rule Term_ok/let:
+  typeEnv ~~ consEnv |- LET id `= e1 IN e2 : t2
+  -- Term_ok: typeEnv ~~ consEnv |- e1 : t1
+  -- Term_ok: (VARTYPE id (JUST t1)) :: typeEnv ~~ consEnv |- e2 : t2
+
+rule Term_ok/seq:
+  typeEnv ~~ consEnv |- SEQ e1 `; e2 : t2
+  -- Term_ok: typeEnv ~~ consEnv |- e1 : t1
+  -- Term_ok: typeEnv ~~ consEnv |- e2 : t2
+
+rule Term_ok/ref:
+  typeEnv ~~ consEnv |- REF term : REFT type
+  -- Term_ok: typeEnv ~~ consEnv |- term : type
+
+rule Term_ok/deref:
+  typeEnv ~~ consEnv |- DEREF term : type
+  -- Term_ok: typeEnv ~~ consEnv |- term : REFT type
+
+;; TODO : var, app, asgn, new-struct, proj
