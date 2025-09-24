@@ -5,7 +5,6 @@ var funType : type
 var scheme : typeScheme
 var nonSelfConss : conss
 var selfCons : cons
-var selfBounds : bounds
 var selfBound : bound
 var tP : tids
 
@@ -33,14 +32,13 @@ rule Construct_context/func:
 
 rule Construct_context/trait:
   TRAIT id tids WHERE conss `{ fid `: typeScheme }
-  ~> [TRAITINFO id tids nonSelfConss selfBounds fid, VARTYPE fid scheme]
+  ~> [TRAITINFO id tids nonSelfConss selfBound* fid, VARTYPE fid scheme]
   ~~ (FORALL tP `. conss `-> selfCons)*
-  -- if scheme = FORALL eps `. eps `-> typeScheme
   -- if nonSelfConss = $getNonSelfConss(conss)
-  -- if selfBounds = $getSelfBounds(conss)
-  -- if selfBound* = selfBounds
+  -- if selfBound* = $getSelfBounds(conss)
   -- if tP = TID "Self" :: tids
   -- if (selfCons = (TID "Self") `: selfBound)*
+  -- if scheme = FORALL tP `. selfCons* `-> typeScheme
 
 rule Construct_context/impl:
   IMPL tids id types FOR type WHERE conss `{ _ }
