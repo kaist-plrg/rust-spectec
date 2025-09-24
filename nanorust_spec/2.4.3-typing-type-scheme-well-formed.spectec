@@ -1,14 +1,12 @@
-rule Scheme_wf/scheme: ;; TODO
-  typeEnv |- FORALL tids `. conss `-> typeScheme
-  -- if false
+rule Scheme_wf/scheme:
+  typeEnv |- FORALL tid* `. cons* `-> typeScheme
+  -- if typeEnv' = typeEnv ++ (TVAR tid)*
+  -- (ConsScheme_wf: typeEnv' |- JUST cons)*
+  -- Scheme_wf: typeEnv' |- typeScheme
 
 rule Scheme_wf/just:
   typeEnv |- JUST type
   -- Type_wf: typeEnv |- type
-
-rule Scheme_wf/empty_just:
-  typeEnv |- FORALL eps `. eps `-> typeScheme
-  -- Scheme_wf: typeEnv |- typeScheme
 
 rule Type_wf/unit:
   typeEnv |- UNITT
@@ -18,9 +16,9 @@ rule Type_wf/tid:
   -- if typeEnv <- TVAR tid
 
 rule Type_wf/fun:
-  typeEnv |- FUNCT t* type
-  -- (Type_wf: typeEnv |- t)*
-  -- Type_wf: typeEnv |- type
+  typeEnv |- FUNCT type* type_rt
+  -- (Type_wf: typeEnv |- type)*
+  -- Type_wf: typeEnv |- type_rt
 
 rule Type_wf/ref:
   typeEnv |- REFT type
@@ -28,4 +26,4 @@ rule Type_wf/ref:
 
 rule Type_wf/struct: ;; TODO
   typeEnv |- STRUCTT id type*
-  -- if false
+  ;;-- if typeEnv <- STRUCTINFO id tids varTypes

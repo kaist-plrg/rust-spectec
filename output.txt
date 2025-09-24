@@ -54,11 +54,11 @@ fn id f [] [] -> unitt where [] { unit }
 
 Premise: if item matches `FN%%%->%WHERE%{%}`
 
-Premise: let fn id tids varType*{varType <- varType*} -> type where conss { _term } = item
+Premise: let fn id tids varType*{varType <- varType*} -> type_rt where conss { _term } = item
 
-Premise: (let t = $getParamType(varType))*{t <- t*, varType <- varType*}
+Premise: (let type = $getParamType(varType))*{type <- type*, varType <- varType*}
 
-Premise: let funType = funct t*{t <- t*} type
+Premise: let funType = funct type*{type <- type*} type_rt
 
 Premise: let scheme = forall tids . conss -> just funType
 
@@ -123,37 +123,13 @@ forall [] . [] -> just funct [] unitt
 
 Premise: if typeScheme' matches `FORALL%.%->%`
 
-Premise: let forall tids . conss -> typeScheme = typeScheme'
-
-Premise: if false
-
-Opening rule Scheme_wf/just
---- with input ---
-[
-  vartype id f forall [] . [] -> just funct [] unitt
-]
-forall [] . [] -> just funct [] unitt
-----------------
-
-Premise: if typeScheme matches `JUST%`
-
-Opening rule Scheme_wf/empty_just
---- with input ---
-[
-  vartype id f forall [] . [] -> just funct [] unitt
-]
-forall [] . [] -> just funct [] unitt
-----------------
-
-Premise: if typeScheme' matches `FORALL%.%->%`
-
 Premise: let forall tid*{tid <- tid*} . cons*{cons <- cons*} -> typeScheme = typeScheme'
 
-Premise: if tid*{tid <- tid*} matches []
+Premise: let typeEnv' = typeEnv ++ tvar tid*{tid <- tid*}
 
-Premise: if cons*{cons <- cons*} matches []
+Premise: (if ConsScheme_wf: typeEnv' |- just cons holds)*{cons <- cons*}
 
-Premise: if Scheme_wf: typeEnv |- typeScheme holds
+Premise: if Scheme_wf: typeEnv' |- typeScheme holds
 
 Opening rule Scheme_wf/scheme
 --- with input ---
@@ -209,11 +185,11 @@ funct [] unitt
 
 Premise: if type' matches `FUNCT%%`
 
-Premise: let funct t*{t <- t*} type = type'
+Premise: let funct type*{type <- type*} type_rt = type'
 
-Premise: (if Type_wf: typeEnv |- t holds)*{t <- t*}
+Premise: (if Type_wf: typeEnv |- type holds)*{type <- type*}
 
-Premise: if Type_wf: typeEnv |- type holds
+Premise: if Type_wf: typeEnv |- type_rt holds
 
 Opening rule Type_wf/unit
 --- with input ---
@@ -231,13 +207,13 @@ Closing rule Type_wf/fun
 
 Closing rule Scheme_wf/just
 
-Closing rule Scheme_wf/empty_just
+Closing rule Scheme_wf/scheme
 
-Premise: let newTypeEnv = typeEnv ++ tvar tid*{tid <- tid*} ++ $varTypeToTypeEnv(varType)*{varType <- varType*}
+Premise: let typeEnv' = typeEnv ++ tvar tid*{tid <- tid*} ++ $varTypeToTypeEnv(varType)*{varType <- varType*}
 
-Premise: let newConsEnv = consEnv ++ just cons*{cons <- cons*}
+Premise: let consEnv' = consEnv ++ just cons*{cons <- cons*}
 
-Premise: Term_ok: newTypeEnv ~~ newConsEnv |- term : type'
+Premise: Term_ok: typeEnv' ~~ consEnv' |- term : type'
 
 Opening rule Term_ok/as
 --- with input ---

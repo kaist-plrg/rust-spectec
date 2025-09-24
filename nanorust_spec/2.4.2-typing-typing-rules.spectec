@@ -7,15 +7,12 @@ rule Program_ok/pgm:
   -- Construct_pgm_context: item* ~> typeEnv ~~ consEnv
   -- (Item_ok: typeEnv ~~ consEnv |- item)*
 
-var newTypeEnv: typeEnv
-var newConsEnv: consEnv
-
 ;; Typing rule for items
 rule Item_ok/struct:
   typeEnv ~~ consEnv |- STRUCT id tid* `{ varType* }
-  -- if newTypeEnv = typeEnv ++ (TVAR tid)*
+  -- if typeEnv' = typeEnv ++ (TVAR tid)*
   -- if (type = $getParamType(varType))*
-  -- (Scheme_wf: newTypeEnv |- (JUST type))*
+  -- (Scheme_wf: typeEnv' |- (JUST type))*
 
 rule Item_ok/func:
   typeEnv ~~ consEnv |- FN id tid* varType* `-> type WHERE cons* `{ term }
@@ -23,9 +20,9 @@ rule Item_ok/func:
   -- if funType = FUNCT t* type
   -- if scheme = FORALL tid* `. cons* `-> ( JUST funType )
   -- Scheme_wf: typeEnv |- scheme
-  -- if newTypeEnv = typeEnv ++ (TVAR tid)* ++ ($varTypeToTypeEnv(varType))*
-  -- if newConsEnv = consEnv ++ (JUST cons)*
-  -- Term_ok: newTypeEnv ~~ newConsEnv |- term : type
+  -- if typeEnv' = typeEnv ++ (TVAR tid)* ++ ($varTypeToTypeEnv(varType))*
+  -- if consEnv' = consEnv ++ (JUST cons)*
+  -- Term_ok: typeEnv' ~~ consEnv' |- term : type
 
 rule Item_ok/trait: ;; TODO
   typeEnv ~~ consEnv |- TRAIT id tids WHERE conss `{ fid `: typeScheme }
