@@ -27,3 +27,4 @@ rule Type_wf/ref:
 rule Type_wf/struct: ;; TODO
   typeEnv |- STRUCTT id type*
   ;;-- if typeEnv <- STRUCTINFO id tids varTypes
+  ;; TODO : make the function that returns info? (option)
