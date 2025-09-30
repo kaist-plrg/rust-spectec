@@ -11,12 +11,12 @@ rule Program_ok/pgm:
 rule Item_ok/struct:
   typeEnv ~~ consEnv |- STRUCT id tid* `{ varType* }
   -- if typeEnv' = typeEnv ++ (TVAR tid)*
-  -- if (type = $getParamType(varType))*
+  -- if (_ `: type = varType)*
   -- (Scheme_wf: typeEnv' |- (JUST type))*
 
 rule Item_ok/func:
   typeEnv ~~ consEnv |- FN id tid* varType* `-> type WHERE cons* `{ term }
-  -- if ($getParamType(varType) = t)*
+  -- if (_ `: t = varType)*
   -- if funType = FUNCT t* type
   -- if scheme = FORALL tid* `. cons* `-> ( JUST funType )
   -- Scheme_wf: typeEnv |- scheme
