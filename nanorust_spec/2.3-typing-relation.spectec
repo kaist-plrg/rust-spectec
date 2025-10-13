@@ -18,3 +18,30 @@ relation Construct_context:
 relation Item_ok:
   typeEnv ~~ consEnv |- item
   hint(input %0 %1 %2)
+
+;; Check expression is well-typed in complete context
+relation Term_ok:
+  typeEnv ~~ consEnv |- term : type
+  hint(input %0 %1 %2)
+
+;; Check that scheme is well-formed in typeEnv
+relation Scheme_wf:
+  typeEnv |- typeScheme
+  hint(input %0 %1)
+
+;; Type_wf is special case of Scheme_wf
+;; (typeScheme = JUST type)
+;; Connection via Scheme_wf/just
+relation Type_wf:
+  typeEnv |- type
+  hint(input %0 %1)
+
+relation ConsScheme_wf:
+  typeEnv |- consScheme
+  hint(input %0 %1)
+
+;; Check that given constraint is entailed.
+;; TODO : Is this can be solved?
+relation Cons_entail:
+  typeEnv ~~ consEnv |- cons
+  hint(input %0 %1 %2)

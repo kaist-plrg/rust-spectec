@@ -1,0 +1,42 @@
+var e1: term
+var e2: term
+var t1: type
+var t2: type
+
+rule Term_ok/as:
+  typeEnv ~~ consEnv |- TYPECAST term AS type : type
+  -- Term_ok: typeEnv ~~ consEnv |- term : type
+
+rule Term_ok/unit:
+  typeEnv ~~ consEnv |- UNIT : UNITT
+
+rule Term_ok/let:
+  typeEnv ~~ consEnv |- LET id `= e1 IN e2 : t2
+  -- Term_ok: typeEnv ~~ consEnv |- e1 : t1
+  -- Term_ok: (VARTYPE id (JUST t1)) :: typeEnv ~~ consEnv |- e2 : t2
+
+rule Term_ok/seq:
+  typeEnv ~~ consEnv |- SEQ e1 `; e2 : t2
+  -- Term_ok: typeEnv ~~ consEnv |- e1 : t1
+  -- Term_ok: typeEnv ~~ consEnv |- e2 : t2
+
+rule Term_ok/ref:
+  typeEnv ~~ consEnv |- REF term : REFT type
+  -- Term_ok: typeEnv ~~ consEnv |- term : type
+
+rule Term_ok/deref:
+  typeEnv ~~ consEnv |- DEREF term : type
+  -- Term_ok: typeEnv ~~ consEnv |- term : REFT type
+
+rule Term_ok/asgn:
+  typeEnv ~~ consEnv |- ASSIGN e1 `= e2 : UNITT
+  -- Term_ok: typeEnv ~~ consEnv |- e1 : type
+  -- Term_ok: typeEnv ~~ consEnv |- e2 : type
+
+rule Term_ok/app:
+  typeEnv ~~ consEnv |- APP term_func `( term* ) : type_rt
+  -- Term_ok: typeEnv ~~ consEnv |- term_func : FUNCT type* type_rt
+  -- if |type*| = |term*|
+  -- (Term_ok: typeEnv ~~ consEnv |- term : type)*
+
+;; TODO : var new-struct proj (list find / substitution on type, cons)

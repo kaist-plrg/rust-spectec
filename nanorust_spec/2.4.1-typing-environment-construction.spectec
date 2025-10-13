@@ -4,7 +4,9 @@ var t : type
 var funType : type
 var scheme : typeScheme
 var nonSelfConss : conss
-var selfBounds : bounds
+var selfCons : cons
+var selfBound : bound
+var tP : tids
 
 ;; Construct program context
 rule Construct_pgm_context/nil:
@@ -22,19 +24,21 @@ rule Construct_context/struct:
   ~> [STRUCTINFO id tids varTypes] ~~ eps
 
 rule Construct_context/func:
-  FN id tids varType* `-> type WHERE conss `{ _ }
+  FN id tids varType* `-> type_rt WHERE conss `{ _ }
   ~> [VARTYPE id scheme] ~~ eps
-  -- if ($getParamType(varType) = t)*
-  -- if funType = FUNCT t* type
+  -- if (id_param `: type_param = varType)*
+  -- if funType = FUNCT type_param* type_rt
   -- if scheme = FORALL tids `. conss `-> ( JUST funType )
 
 rule Construct_context/trait:
   TRAIT id tids WHERE conss `{ fid `: typeScheme }
-  ~> [TRAITINFO id tids nonSelfConss selfBounds fid, VARTYPE fid scheme]
-  ~~ [] ;; TODO
-  -- if scheme = FORALL eps `. eps `-> typeScheme
+  ~> [TRAITINFO id tids nonSelfConss selfBound* fid, VARTYPE fid scheme]
+  ~~ (FORALL tP `. conss `-> selfCons)*
   -- if nonSelfConss = $getNonSelfConss(conss)
-  -- if selfBounds = $getSelfBounds(conss)
+  -- if selfBound* = $getSelfBounds(conss)
+  -- if tP = TID "Self" :: tids
+  -- if (selfCons = (TID "Self") `: selfBound)*
+  -- if scheme = FORALL tP `. selfCons* `-> typeScheme
 
 rule Construct_context/impl:
   IMPL tids id types FOR type WHERE conss `{ _ }

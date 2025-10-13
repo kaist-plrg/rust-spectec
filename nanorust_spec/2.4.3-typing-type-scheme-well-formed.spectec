@@ -1,0 +1,46 @@
+rule Scheme_wf/scheme:
+  typeEnv |- FORALL tid* `. cons* `-> typeScheme
+  -- if typeEnv' = typeEnv ++ (TVAR tid)*
+  -- (ConsScheme_wf: typeEnv' |- JUST cons)*
+  -- Scheme_wf: typeEnv' |- typeScheme
+
+rule Scheme_wf/just:
+  typeEnv |- JUST type
+  -- Type_wf: typeEnv |- type
+
+rule Type_wf/unit:
+  typeEnv |- UNITT
+
+rule Type_wf/tid:
+  typeEnv |- tid
+  -- if typeEnv <- TVAR tid
+
+rule Type_wf/fun:
+  typeEnv |- FUNCT type* type_rt
+  -- (Type_wf: typeEnv |- type)*
+  -- Type_wf: typeEnv |- type_rt
+
+rule Type_wf/ref:
+  typeEnv |- REFT type
+  -- Type_wf: typeEnv |- type
+
+rule Type_wf/struct:
+  typeEnv |- STRUCTT id type*
+  -- if STRUCTINFO _ tids varTypes = $findStructInTEnv(typeEnv, id)
+  -- (Type_wf: typeEnv |- type)*
+  ;;-- if typeEnv <- STRUCTINFO id tids varTypes
+  ;; TODO : make the function that returns info? (option)
+
+rule ConsScheme_wf/csscheme:
+  typeEnv |- FORALL tid* `. cons_p* `-> cons
+  -- if typeEnv' = typeEnv ++ (TVAR tid)*
+  -- (ConsScheme_wf: typeEnv' |- (JUST cons_p))*
+  -- ConsScheme_wf: typeEnv' |- (JUST cons)
+
+rule ConsScheme_wf/trcons: ;; TODO
+  typeEnv |- JUST (type `: (id `< type_g* >))
+  ;; find TRAITINFO and check type_g length = tid length
+  -- if TRAITINFO _ tid* _ _ _ = $findTraitInTEnv(typeEnv, id)
+  -- if |tid*| = |type_g*|
+  -- Type_wf: typeEnv |- type
+  -- (Type_wf: typeEnv |- type_g)*

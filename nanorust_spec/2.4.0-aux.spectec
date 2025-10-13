@@ -1,6 +1,3 @@
-dec $getParamType(varType): type
-def $getParamType(id `: type) = type
-
 dec $getBoundfromCons(cons): bound
 def $getBoundfromCons(type `: bound) = bound
 
@@ -23,3 +20,22 @@ def $getSelfBounds(cons_h :: cons_t*) = $getBoundfromCons(cons_h) :: $getSelfBou
   -- if $isSelfConss(cons_h)
 def $getSelfBounds(cons_h :: cons_t*) = $getSelfBounds(cons_t*)
   -- otherwise
+
+dec $varTypeToTypeEnv(varType): typeEnvElem
+def $varTypeToTypeEnv(id `: type) = VARTYPE id (JUST type)
+
+dec $findStructInTEnv(typeEnv, id): typeEnvElem?
+def $findStructInTEnv(typeEnvElem_h :: _, id) = typeEnvElem_h
+  -- if typeEnvElem_h = STRUCTINFO id' _ _
+  -- if id = id'
+def $findStructInTEnv(_ :: typeEnvElem*, id) = $findStructInTEnv(typeEnvElem*, id)
+  -- otherwise
+def $findStructInTEnv(eps, _) = eps
+
+dec $findTraitInTEnv(typeEnv, id): typeEnvElem?
+def $findTraitInTEnv(typeEnvElem_h :: _, id) = typeEnvElem_h
+  -- if typeEnvElem_h = TRAITINFO id' _ _ _ _
+  -- if id = id'
+def $findTraitInTEnv(_ :: typeEnvElem*, id) = $findTraitInTEnv(typeEnvElem*, id)
+  -- otherwise
+def $findTraitInTEnv(eps, _) = eps

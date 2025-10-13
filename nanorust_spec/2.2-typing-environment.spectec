@@ -6,5 +6,7 @@ syntax typeEnvElem =
 
 syntax typeEnv = typeEnvElem*
 
-syntax consScheme = FORALL tids `. conss `-> cons
+syntax consScheme =
+  | FORALL tids `. conss `-> cons
+  | JUST cons
 syntax consEnv = consScheme*
