@@ -1,38 +1,11 @@
-syntax localEnv = map<id, value>
-syntax globalEnv = map<id, value>
-syntax env =
-  { GLOBAL globalEnv,
-    LOCAL localEnv }
-syntax sto = value*
-
-def $lookup_<K, V>( eps, K_query ) = eps
-def $lookup_<K, V>( (K_h -> V_h) :: (K_t -> V_t)*, K_query ) = V_h
-  -- if K_h = K_query
-def $lookup_<K, V>( (K_h -> V_h) :: (K_t -> V_t)*, K_query )
-  = $lookup_<K, V>( (K_t -> V_t)*, K_query )
-  -- otherwise
-
-dec $update_at_<X>( X*, nat, X ) : X*?
-def $update_at_<X>( eps, n, X ) = eps
-def $update_at_<X>( X_h::X_t*, 0, X )
-  = X :: X_t*
-def $update_at_<X>( X_h::X_t*, n, X )
-  = X_h :: $update_at_<X>( X_t*, $(n - 1), X )
-
 relation Eval:
   env; sto |- expr ==> value; sto
   hint(input %0 %1 %2)
 
+var n : nat
+
 rule Eval/numE:
   env; sto |- NumE n ==> NumV n; sto
-
-rule Eval/varE-local:
-  env; sto |- VarE id ==> value; sto
-  -- if $lookup_<id, value>(env.LOCAL, id) = value
-
-rule Eval/varE-global:
-  env; sto |- VarE id ==> value; sto
-  -- if $lookup_<id, value>(env.GLOBAL, id) = value
 
 rule Eval/binE-add:
   env; sto |- BinE ADD e_l e_r ==> NumV $(n_l + n_r); sto_2
@@ -49,10 +22,18 @@ rule Eval/letE:
   -- Eval: env; sto |- e_p ==> value_p; sto_1
   -- Eval: env[.LOCAL = (id -> value_p) :: env.LOCAL]; sto_1 |- e_b ==> value_b; sto_2
 
-rule Eval/funE:
+rule Eval/varE-local:
+  env; sto |- VarE id ==> value; sto
+  -- if $lookup_env(env.LOCAL, id) = value
+
+rule Eval/varE-global:
+  env; sto |- VarE id ==> value; sto
+  -- if $lookup_env(env.GLOBAL, id) = value
+
+rule Eval/funcE:
   env; sto |- FuncE id _ e ==> CloV id e env; sto
 
-rule Eval/appE:
+rule Eval/applyE:
   env; sto |- ApplyE e_f e_a ==> value_r; sto_3
   -- Eval: env; sto |- e_f ==> CloV id e_b env_clo; sto_1
   -- Eval: env; sto_1 |- e_a ==> value_a; sto_2
@@ -72,7 +53,7 @@ rule Eval/updateE:
   env; sto |- UpdateE e_l e_r ==> value_r; sto_3
   -- Eval: env; sto |- e_l ==> LocV n; sto_1
   -- Eval: env; sto_1 |- e_r ==> value_r; sto_2
-  -- if $update_at_<value>(sto_1, n, value_r) = sto_3
+  -- if sto_2[[n] = value_r] = sto_3
 
 relation Eval_Prog:
   env; sto |- program ==> value; sto
