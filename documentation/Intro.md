@@ -39,7 +39,7 @@ Because there are multiple versions of SpecTec with varying language constructs 
   * [Neovim treesitter grammar for P4-SpecTec](https://github.com/KunJeong/tree-sitter-spectec)
 Fonts with custom ligatures for common programming and math symbols can greatly improve the readability of SpecTec's ASCII symbols, such as various arrows and turnstiles.
 
-## SpecTec with Examples
+## Writing a Language Specification with SpecTec
 In this section, we showcase the various features of SpecTec by writing a specification for simple toy language. We start with a very small language and gradually add new features to it.
 
 ### Language 1: Language With Functions and Local Variables
@@ -365,3 +365,88 @@ rule Eval/updateE:
   -- if sto_2[[n] = value_r] = sto_3
 ```
 For updating, we use another piece of SpecTec syntax, the *list update expression*, which allows us to produce an update copy of the store with the `n`th value updated to `value_r`. SpecTec disallows mutation (as to not surprise spec editors with unexpected side-effects), but instead provides declarative syntax to easily locate and update values when necessary.
+
+### Language 3: Language With Global Declarations
+Our language is getting more interesting, but so far it has only one language construct: expressions. Let's try to mimic an imperative langauge by adding declarations.
+
+#### Updating the Syntax and Typing Context
+```spectec
+;; 1-syntax.spectec
+syntax globalDecl =
+  GlobalD id expr         ;; let x = e;
+
+syntax program =
+  | globalDecl; program    ;; decl; program
+  | expr
+```
+
+Now we have a `program` type, that is recursively defined as a list of `globalDecl` followed by an expression, which serves as the "main" for our program. Our langauge now has global declaration, which are similar to local bindings but with a different "global" scope; it can be combined with the existing constructs to define global variables or functions.
+
+To deal with the new notion of scope, we first need to split our context into two parts - local and global.
+
+```spectec
+;; 2.2-typing-context.spectec
+syntax contextLayer = map<id, type>
+dec $lookup_context(contextLayer, id) : type?
+
+syntax context =
+  { GLOBAL contextLayer,
+    LOCAL contextLayer }
+var C : context
+```
+This is where a new SpecTec construct comes in handy - the record type. Record types are defined as a list of named fields, and unlike tuple types that must be deconstructed, independent fields of records can be more accessed more conveniently via dot notation. In this example, we define the context to have local and global 'layers'. Since both layers have the same type, we can modify the `$lookup_context` function to lookup within a layer instead.
+
+#### Updating the Static Semantics
+Let's first update the existing typing rules. We now have two context layers, so local bindings should bind the type to the local layer. We can access the local layer of the context as `C.LOCAL`, using *field access expression* syntax.
+```spectec
+;; 2.3-typing.spectec
+rule Type/letE:
+  C |- LetE id e_p e_b : type_b
+  -- Type: C |- e_p : type_p
+  -- Type: C[.LOCAL = (id -> type_p)::C.LOCAL] |- e_b : type_b
+
+rule Type/varE-local:
+  C |- VarE id : type
+  -- if $lookup_context(C.LOCAL, id) = type
+
+rule Type/varE-global:
+  C |- VarE id : type
+  -- if $lookup_context(C.GLOBAL, id) = type
+```
+For `VarE`, we must first lookup the local context, then if that fails, we should lookup the global context. This can be done by splitting the rule into two parts. SpecTec maintains consistency in the ordering of rules, so that the local context is always attempted before the global context.
+
+We also have a new language construct, which necessitates a new relation for typechecking and evaluation. We can create a new relation `Type_prog` to typecheck programs.
+```spectec
+;; 2.3-typing.spectec
+relation Type_Prog:
+  context |- program : type
+  hint(input %0 %1)
+
+rule Type_Prog/expr:
+  C |- e : type
+  -- Type: C |- e : type
+
+rule Type_Prog/decl:
+  C |- GlobalD id e; program : type_p
+  -- Type: C |- e : type
+  -- Type_Prog: C[.GLOBAL = (id -> type)::C.GLOBAL] |- program : type_p
+```
+Since `program` is inductively defined as either a single expression, or a declaration followed by a program, we perform case analysis on the two cases. Simple case first, typechecking an expression should result in the type of that expression.
+
+Having set that aside, we can define the second case, which handles global declarations. The semantics is similar to local bindings, we first typecheck the body, and add a binding from the id to the type into the context. We can use *field update expressions* for this; we enclose the updating logic in square brackets (`[ ]`) to disambiguate from comparison. Here we update `C.GLOBAL`(the global context) to the global context prepended with the new binding. We then typecheck the program under this updated context.
+
+#### Updating the Dynamic Semantics
+We can update the dynamic semantics similarly.
+```spectec
+;; 3.2-evaluation-env.spectec
+syntax envLayer = map<id, value>
+
+syntax env =
+  { GLOBAL envLayer,
+    LOCAL envLayer }
+dec $lookup_env(envLayer, id) : value?
+
+syntax sto = value*
+```
+
+Changes to the evaluation rules are trivial, thus omitted. The full spec files for the example languages are available under `./spectec-with-examples`.

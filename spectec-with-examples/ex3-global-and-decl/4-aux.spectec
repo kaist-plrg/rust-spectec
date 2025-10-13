@@ -7,5 +7,5 @@ def $lookup_<K, V>((K_h -> V_h):: (K_t -> V_t)*, K)
   = $lookup_<K, V>((K_t -> V_t)*, K)
   -- otherwise
 
-def $lookup_context(context, id) = $lookup_<id, type>(context, id)
-def $lookup_env(env, id) = $lookup_<id, value>(env, id)
+def $lookup_context(contextLayer, id) = $lookup_<id, type>(contextLayer, id)
+def $lookup_env(envLayer, id) = $lookup_<id, value>(envLayer, id)

@@ -1,10 +1,10 @@
 syntax pair<K, V> = K -> V
 syntax map<K, V> = (pair<K, V>)*
 
-syntax localContext = map<id, type>
-syntax globalContext = map<id, type>
-syntax context =
-  { GLOBAL globalContext,
-    LOCAL localContext }
+syntax contextLayer = map<id, type>
+dec $lookup_context(contextLayer, id) : type?
 
+syntax context =
+  { GLOBAL contextLayer,
+    LOCAL contextLayer }
 var C : context
